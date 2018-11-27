@@ -1,11 +1,11 @@
 % to be completed
 function U = PCA(x,d)
 
-  x=x';
   %compute number of samples as N
-  N = size(x)(2)
-  %first we need to normalize 
-  X = x*(eye(N) - 1/N * ones(N,1) * ones(N,1)')
+  size_array = size(x);
+  N = size_array(1);
+  % Data Centering using matrix multiplication
+  X = x'*(eye(N) - 1/N * ones(N,1) * ones(N,1)');
   % PCA step 1:Compute dot product matrix
   S = X'*X;
   % PCA step 2:Perform eigenanalysis of S 
