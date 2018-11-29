@@ -73,19 +73,21 @@ function [a, R] = calcRandCentre(data)
     lb = zeros(n,1);
     ub = C*ones(n,1);
     x = quadprog(H,f,A,b,Aeq,beq,lb,ub);
-    %use the obtained dual solution to compute the solution for primal
+    %now we get \mu and we can calculate center point and radii
     a_t =  transpose(x)*data/sum(x);
     a = transpose(a_t);
     distance = data-a_t;
     R_sum = 0;
     num = 0;
     for i = 1:length(x)
-        if x(i)>0.00000006 && x(i)<= C
+        % 0 <= x <= C, here we change 0 to a small number as a threshold
+        % and get better result
+        if x(i)>=0.00000006 && x(i)<= C
+            % calculate the sum of radii, each radii is i * i
             R_sum = R_sum + sqrt(distance(i,:)*transpose(distance(i,:)));
             num=num+1;
         end
     end
-    %take the average radii
     R = R_sum/num;
 
 end
