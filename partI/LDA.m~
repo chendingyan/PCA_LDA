@@ -1,0 +1,49 @@
+% to be completed
+function W = LDA(x,y)
+    count = hist(y,unique(y));
+    %creat an all zero symmetric matrix, with size equal to number of train X
+    M = zeros(sum(count));
+
+    %use for loop to compute the index of M where each E_i should start
+    class
+    num = 1;
+    index_start = [1];
+    for r = 1:length(count)-1
+        num = num+count(r);
+        index_start = [index_start num];
+    end
+    %assign value into M matrix
+    for j = 1:length(count)
+        for i = index_start
+            item = count(j);
+            val = 1/item;
+            M(i,i)=val;
+            for p =0:item-1
+                for q = 0:item-1
+                    M(i+p,i+q)=val;
+                end
+            end
+        end
+    end
+    N = length(x(:,1));
+    x = x';
+    % Data Centering using matrix multiplication
+    X = x *(eye(N) - 1/N * ones(N,1) * ones(N,1)');
+    % PCA step 1:Compute dot product matrix
+    S = X'*X;
+    %compute the within-class scatter matrix and perform eigen-analysis 
+    I = eye(length(M));
+    Sw = (I-M)*S*(I-M);
+    Sw = 0.5*(Sw+transpose(Sw));
+    [V_Sw,lambda_Sw] = eigs(Sw,N-length(count));
+    %data whitening
+    U = X*(I-M)*V_Sw*inv(lambda_Sw);
+    %compute the between-class scatter matrix 
+    Sb=transpose(U)*X*M*transpose(X)*U;
+    Sb = 0.5*(Sb+transpose(Sb));
+    %compute largest C-1 eigenvectors and eigenvalues of Sb
+    [evec_bd,eval_bd] = eigs(Sb,length(count)-1);
+    %total transformation
+    W=U*evec_bd;
+
+    
